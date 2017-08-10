@@ -1,7 +1,19 @@
 library(pgxsim)
 library(tidyverse)
+
+#set the number of replicate simulations to generate
+nreps <- 200
+#nreps <- 2 #for testing
+
+#set the seed to make results reproducible
 my_seed <- 10001
 set.seed(my_seed)
+
+#set output path
+outpath <- '11_screen_sim'
+if(!dir.exists(outpath)) {
+  dir.create(outpath)
+}
 
 #define the parameters that will remain fixed
 fixed_df <- data_frame(type='discrete', mu=.5, lb=-4, ub=Inf, minconc=0.001, maxconc=30,
@@ -11,9 +23,10 @@ varying_df <- crossing(sd=1, n=c(50, 200, 800), prop=c(0.05,0.1,0.2), beta=-c(.3
   dplyr::mutate(sim_group=row_number())
 
 #do in parallel with more sims
-parallel_sim_df <- crossing(fixed_df, varying_df, sim_rep=c(1:100)) %>%
+nbatches <- max(parallel::detectCores(), nreps*3)  #number of batches to split computation into
+parallel_sim_df <- crossing(fixed_df, varying_df, sim_rep=c(1:nreps)) %>%
   dplyr::mutate(sim_unique_id=row_number(),
-                batch=sample(1:720, n(), replace = TRUE))
+                batch=sample(1:nbatches, n(), replace = TRUE))
 parallel_sim_df
 
 library(batchtools)
@@ -52,54 +65,6 @@ sess_time <- timestamp(quiet = TRUE)
 
 #save output
 save(parallel_res_df, job_tab, fixed_df, varying_df, parallel_sim_df, sess_inf, sess_time, my_seed,
-     file = '11_screen_sim.RData')
+     file = file.path(outpath, '11_screen_sim.RData'))
 
-
-#estimates
-ggplot(parallel_res_df, aes(as.factor(round(beta,2)), beta_estimate, colour=method)) +
-  geom_boxplot(outlier.size = 0) +
-  #facet_grid(prop~sd+n) + ylim(-4,2) +
-  facet_grid(sd_add+prop~n) + ylim(-4,2) +
-  theme_bw()
-
-#p values
-ggplot(parallel_res_df, aes(as.factor(round(beta,2)), -log10(beta_pval), colour=method)) +
-  geom_boxplot(outlier.size = 0) +
-  #facet_grid(prop~sd+n) + ylim(-4,30) +
-  facet_grid(sd_add+prop~n) + ylim(-4,20) +
-  theme_bw()
-
-#test p values
-ggplot(parallel_res_df, aes(as.factor(round(beta,2)), -log10(test_pval), colour=method)) +
-  geom_boxplot(outlier.size = 0) +
-  #facet_grid(prop~sd+n) + ylim(-4,30) +
-  facet_grid(sd_add+prop~n) +
-  theme_bw()
-
-#proportion of times that p<0.05
-sig_calc <- parallel_res_df %>%
-  dplyr::mutate(betap_sig=beta_pval<=0.05,
-                testp_sig=test_pval<=0.05,
-                rci_sig=abs(1.98*beta_std_err/beta_estimate)<=1) %>%
-  dplyr::group_by(sim_group, method, sd, sd_add, n, prop, beta) %>%
-  dplyr::summarise(betap_sig=mean(betap_sig),
-                   testp_sig=mean(testp_sig),
-                   rci_sig=mean(rci_sig))
-
-
-#power calculations
-ggplot(sig_calc, aes(x=n, y=betap_sig, colour=method, linetype=method)) +
-  geom_line(alpha=0.8, size=1) +
-  facet_grid(prop+sd_add~sd+round(beta,1)) +
-  theme_bw()
-
-ggplot(sig_calc, aes(x=n, y=testp_sig, colour=method, linetype=method)) +
-  geom_line(alpha=0.8, size=1) +
-  facet_grid(prop+sd_add~sd+round(beta,1)) +
-  theme_bw()
-
-ggplot(sig_calc, aes(x=n, y=rci_sig, colour=method, linetype=method)) +
-  geom_line(alpha=0.8, size=1) +
-  facet_grid(prop+sd_add~sd+round(beta,1)) +
-  theme_bw()
 

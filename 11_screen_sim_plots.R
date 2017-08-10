@@ -1,9 +1,15 @@
 library(pgxsim)
 library(tidyverse)
 
+#define the output path and load the simulation data (if present)
+outpath <- '11_screen_sim'
+res_file <- file.path(outpath, '11_screen_sim.RData')
 
-setwd('~/Documents/Work/2017/20170531 Dose Response Simulation/aws_runs/')
-load('11_screen_sim.RData')
+if(file.exists(res_file)) {
+  load(res_file)
+} else {
+  stop('Need to run 11_screen_sim.R script first')
+}
 
 #get rid of truncated nls_lm
 parallel_res_df <- dplyr::filter(parallel_res_df, method!='nls_lm_t0')
@@ -27,7 +33,7 @@ ggplot(aes(as.factor(n), beta_estimate, colour=method)) +
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw() + ylim(-3,2) + xlab('Number of cell lines')
 beta_7pt_1rep
-ggsave('11_beta_7pt_1rep_fig5a.png', beta_7pt_1rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_beta_7pt_1rep_fig5a.png', beta_7pt_1rep, path=outpath, width = 10, height=6)
 
 
 #beta estimates 10pt_3rep
@@ -38,7 +44,7 @@ beta_10pt_3rep <- parallel_res_df %>%
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw() + ylim(-3,2) + xlab('Number of cell lines')
 beta_10pt_3rep
-ggsave('11_beta_10pt_3rep_fig5b.png', beta_10pt_3rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_beta_10pt_3rep_fig5b.png', beta_10pt_3rep, path=outpath, width = 10, height=6)
 
 
 #beta pval 7pt_1rep
@@ -67,7 +73,7 @@ testpval_7pt_1rep <- parallel_res_df %>%
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw()  + xlab('Number of cell lines')
 testpval_7pt_1rep
-ggsave('11_testpval_7pt_1rep_fig5c.png', testpval_7pt_1rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_testpval_7pt_1rep_fig5c.png', testpval_7pt_1rep, path=outpath, width = 10, height=6)
 
 
 #test pval 10pt_3rep
@@ -78,7 +84,7 @@ testpval_10pt_3rep <- parallel_res_df %>%
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw() + xlab('Number of cell lines')
 testpval_10pt_3rep
-ggsave('11_testpval_10pt_3rep_fig5d.png', testpval_10pt_3rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_testpval_10pt_3rep_fig5d.png', testpval_10pt_3rep, path=outpath, width = 10, height=6)
 
 
 # Power calculation -------------------------------------------------------
@@ -126,7 +132,7 @@ pwr_testpval_7pt_1rep <-sig_calc %>%
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw() + xlab('Number of cell lines')
 pwr_testpval_7pt_1rep
-ggsave('11_pwr_testpval_7pt_1rep_fig6a.png', pwr_testpval_7pt_1rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_pwr_testpval_7pt_1rep_fig6a.png', pwr_testpval_7pt_1rep, path=outpath, width = 10, height=6)
 
 
 #test pval power 10pt_3rep
@@ -138,7 +144,7 @@ pwr_testpval_10pt_3rep <-sig_calc %>%
   facet_grid(assay+prop~sd+sd_add+beta, labeller = label_both) +
   theme_bw() + xlab('Number of cell lines')
 pwr_testpval_10pt_3rep
-ggsave('11_pwr_testpval_10pt_3rep_fig6b.png', pwr_testpval_10pt_3rep, path='11_screen_sim_plots/', width = 10, height=6)
+ggsave('11_pwr_testpval_10pt_3rep_fig6b.png', pwr_testpval_10pt_3rep, path=outpath, width = 10, height=6)
 
 
 #rci power 7pt_1rep

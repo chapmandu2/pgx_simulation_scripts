@@ -1,7 +1,19 @@
 library(pgxsim)
 library(tidyverse)
+
+#set the number of replicate simulations to generate
+nreps <- 200
+#nreps <- 2 #for testing
+
+#set the seed to make results reproducible
 my_seed <- 10001
 set.seed(my_seed)
+
+#set output path
+outpath <- '13_explore_low_n'
+if(!dir.exists(outpath)) {
+  dir.create(outpath)
+}
 
 #define the parameters that will remain fixed
 fixed_df <- data_frame(type='discrete', mu=.5, lb=-4, ub=Inf, minconc=0.001, maxconc=30,
@@ -11,9 +23,10 @@ varying_df <- crossing(sd=c(.4, 1), n=c(10, 20, 40), beta=-c(.3, .5, 1), sd_add=
     dplyr::mutate(sim_group=row_number())
 
 #do in parallel with more sims
-parallel_sim_df <- crossing(fixed_df, varying_df, sim_rep=c(1:200)) %>%
+nbatches <- max(parallel::detectCores(), nreps*2)  #number of batches to split computation into
+parallel_sim_df <- crossing(fixed_df, varying_df, sim_rep=c(1:nreps)) %>%
   dplyr::mutate(sim_unique_id=row_number(),
-                batch=sample(1:360, n(), replace = TRUE))
+                batch=sample(1:nbatches, n(), replace = TRUE))
 parallel_sim_df
 
 library(batchtools)
@@ -52,5 +65,5 @@ sess_time <- timestamp(quiet = TRUE)
 
 #save output
 save(parallel_res_df, job_tab, fixed_df, varying_df, parallel_sim_df, sess_inf, sess_time, my_seed,
-     file = '13_explore_low_n.RData')
+     file = file.path(outpath,'13_explore_low_n.RData'))
 

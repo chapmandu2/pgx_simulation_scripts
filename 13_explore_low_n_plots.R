@@ -1,9 +1,15 @@
 library(pgxsim)
 library(tidyverse)
 
+#define the output path and load the simulation data (if present)
+outpath <- '13_explore_low_n'
+res_file <- file.path(outpath, '13_explore_low_n.RData')
 
-setwd('~/Documents/Work/2017/20170531 Dose Response Simulation/aws_runs/')
-load('13_explore_low_n.RData')
+if(file.exists(res_file)) {
+  load(res_file)
+} else {
+  stop('Need to run 13_explore_low_n.R script first')
+}
 
 #get rid of truncated nls_lm
 parallel_res_df <- dplyr::filter(parallel_res_df, method!='nls_lm_t0')
@@ -20,7 +26,7 @@ beta_7pt_1rep <- parallel_res_df %>%
   facet_grid(assay+sd_add~sd+n+prop, labeller = label_both, scales='free_y') +
   theme_bw() + ylim(-4,2) + xlab('beta')
 beta_7pt_1rep
-ggsave('13_beta_7pt_1rep_fig4a.png', beta_7pt_1rep, path='13_explore_low_n_plots/', width = 10, height=6)
+ggsave('13_beta_7pt_1rep_fig4a.png', beta_7pt_1rep, path=outpath, width = 10, height=6)
 
 
 #beta estimates 10pt_3rep
@@ -31,7 +37,7 @@ beta_10pt_3rep <- parallel_res_df %>%
   facet_grid(assay+sd_add~sd+n+prop, labeller = label_both, scales='free_y') +
   theme_bw() + ylim(-4,2) + xlab('beta')
 beta_10pt_3rep
-ggsave('13_beta_10pt_3rep_fig4b.png', beta_10pt_3rep, path='13_explore_low_n_plots/', width = 10, height=6)
+ggsave('13_beta_10pt_3rep_fig4b.png', beta_10pt_3rep, path=outpath, width = 10, height=6)
 
 
 #beta pvals 7pt_1rep
@@ -60,7 +66,7 @@ testpval_7pt_1rep <- parallel_res_df %>%
   facet_grid(assay+sd_add~sd+n+prop, labeller = label_both, scales='free_y') +
   theme_bw() + xlab('beta')
 testpval_7pt_1rep
-ggsave('13_testpval_7pt_1rep_fig4c.png', testpval_7pt_1rep, path='13_explore_low_n_plots/', width = 10, height=6)
+ggsave('13_testpval_7pt_1rep_fig4c.png', testpval_7pt_1rep, path=outpath, width = 10, height=6)
 
 
 #test pval 10pt_3rep
@@ -71,7 +77,7 @@ testpval_10pt_3rep <- parallel_res_df %>%
   facet_grid(assay+sd_add~sd+n+prop, labeller = label_both, scales='free_y') +
   theme_bw() + xlab('beta')
 testpval_10pt_3rep
-ggsave('13_testpval_10pt_3rep_fig4d.png', testpval_10pt_3rep, path='13_explore_low_n_plots/', width = 10, height=6)
+ggsave('13_testpval_10pt_3rep_fig4d.png', testpval_10pt_3rep, path=outpath, width = 10, height=6)
 
 sess_time
 my_seed

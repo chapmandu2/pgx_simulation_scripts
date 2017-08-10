@@ -1,9 +1,13 @@
 library(tidyverse)
 library(pgxsim)
 
-setwd('~/Documents/Work/2017/20170531 Dose Response Simulation/aws_runs/')
-
 set.seed(10001)
+
+#set output path
+outpath <- '10_dose_response'
+if(!dir.exists(outpath)) {
+  dir.create(outpath)
+}
 
 #simulate cell lines and dose response data
 pIC50_seq <- seq(-5,4,0.05)
@@ -36,7 +40,7 @@ cl100_dr_plot <- simulation_df %>%
   ggplot(aes(conc,resp)) + geom_point() + scale_x_log10() + ylim(-1,2) +
   theme_bw() + facet_wrap(sd_prop~sd_add, labeller = label_both) + ggtitle('Fig 1: Simulated Dose Response Curves') 
 cl100_dr_plot
-ggsave('cl100_dr_plot_fig1.png', cl100_dr_plot, path='10_dose_response_plots/', width = 8, height=6)
+ggsave('cl100_dr_plot_fig1.png', cl100_dr_plot, path=outpath, width = 8, height=6)
 
 #fit dose response curves using nls
 nls_fits <- simulation_df %>%
@@ -58,7 +62,7 @@ nls_fit_plot_10pt <- nls_results %>%
   facet_grid(assay+sd_prop~sd_add, labeller = label_both) +
   theme_bw() + xlim(-6,5) + ylim(-6,5)
 nls_fit_plot_10pt
-ggsave('nls_fit_plot_10pt_fig2c.png', nls_fit_plot_10pt, path='10_dose_response_plots/', width = 8, height=6)
+ggsave('nls_fit_plot_10pt_fig2c.png', nls_fit_plot_10pt, path=outpath, width = 8, height=6)
 
 nls_fit_plot_7pt <- nls_results %>%
   dplyr::filter(assay=='7pt_1rep') %>%
@@ -70,7 +74,7 @@ nls_fit_plot_7pt <- nls_results %>%
   facet_grid(assay+sd_prop~sd_add, labeller = label_both) +
   theme_bw() + xlim(-6,5) + ylim(-6,5)
 nls_fit_plot_7pt
-ggsave('nls_fit_plot_7pt_fig2a.png', nls_fit_plot_7pt, path='10_dose_response_plots/', width = 8, height=6)
+ggsave('nls_fit_plot_7pt_fig2a.png', nls_fit_plot_7pt, path=outpath, width = 8, height=6)
 
 
 #fit dose response curves using nlme
@@ -94,7 +98,7 @@ nlme_fit_plot_10pt <- nlme_results %>%
   facet_grid(assay+sd_prop~sd_add, labeller = label_both) +
   theme_bw() + xlim(-6,5) + ylim(-6,5)
 nlme_fit_plot_10pt
-ggsave('nlme_fit_plot_10pt_fig2d.png', nlme_fit_plot_10pt, path='10_dose_response_plots/', width = 8, height=6)
+ggsave('nlme_fit_plot_10pt_fig2d.png', nlme_fit_plot_10pt, path=outpath, width = 8, height=6)
 
 nlme_fit_plot_7pt <- nlme_results %>%
   dplyr::filter(assay=='7pt_1rep') %>%
@@ -106,4 +110,4 @@ nlme_fit_plot_7pt <- nlme_results %>%
   facet_grid(assay+sd_prop~sd_add, labeller = label_both) +
   theme_bw() + xlim(-6,5) + ylim(-6,5)
 nlme_fit_plot_7pt
-ggsave('nlme_fit_plot_7pt_fig2b.png', nlme_fit_plot_7pt, path='10_dose_response_plots/', width = 8, height=6)
+ggsave('nlme_fit_plot_7pt_fig2b.png', nlme_fit_plot_7pt, path=outpath, width = 8, height=6)

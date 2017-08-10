@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 *.pem
+10_dose_response/
+11_screen_sim/
+12_explore_mu/
+13_explore_low_n/
