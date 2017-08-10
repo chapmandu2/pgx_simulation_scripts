@@ -3,7 +3,7 @@ library(tidyverse)
 
 #set the number of replicate simulations to generate
 nreps <- 200
-#nreps <- 2 #for testing
+# nreps <- 2 #for testing
 
 #set the seed to make results reproducible
 my_seed <- 10001

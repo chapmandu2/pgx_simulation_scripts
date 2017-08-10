@@ -3,7 +3,7 @@ library(tidyverse)
 
 #set the number of replicate simulations to generate
 nreps <- 200
-#nreps <- 2 #for testing
+# nreps <- 2 #for testing
 
 #set the seed to make results reproducible
 my_seed <- 10001
@@ -65,5 +65,5 @@ sess_time <- timestamp(quiet = TRUE)
 
 #save output
 save(parallel_res_df, job_tab, fixed_df, varying_df, parallel_sim_df, sess_inf, sess_time, my_seed,
-     file = file.path('outpath', '12_explore_mu.RData'))
+     file = file.path(outpath, '12_explore_mu.RData'))
 
